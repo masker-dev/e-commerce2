@@ -1,0 +1,52 @@
+
+<%-include('./layouts/header.ejs')%>
+<style>
+    .height{
+        min-height: 490px !important;
+    }
+    table{
+        width: 450px !important;
+    }
+</style>
+<div id="#container" class="container height">
+    <p>Order Date: <span><%=order.newDate%></span> </p>
+<p>applicant: <span><%=order.name%></span> </p>
+<p>Order Status : <span><%=order.status%></span></p>
+<h4>Details : </h4>
+<table class="table table-hover ">
+    <thead class="thead-light">
+        <tr>
+            <th>product</th>
+            <th>cost</th>
+            <th>quantity</th>
+            <th>total cost</th>
+        </tr>
+    </thead>
+    <tbody>
+    <%if(order){%>
+        <%order.products.forEach(function(product){%>
+            <tr>
+                <td><%=product.productId.name%></td>
+                <td><%=product.price%></td>
+                <td><%=product.quantity%></td>
+                
+                <td><%=product.price * product.quantity%>$</td> 
+        </tr>
+    <%})%>
+    <%}else{%>
+        <h1>There is no products wright now</h1>
+    <%}%>
+  </tbody>
+
+</table>
+
+
+</div>
+
+
+
+  
+  
+
+<%-include('./layouts/footer.ejs')%>
+

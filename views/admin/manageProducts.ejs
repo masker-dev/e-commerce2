@@ -1,0 +1,107 @@
+<%-include('../layouts/header.ejs')%>
+
+<style>
+    td img{
+        width: 100px;
+        height: 100px;
+    }
+    .container>a.btn{
+        margin: 20px 0 10px 20px;
+        background-color: #84a59d;
+        color: white;
+        transition: all 0.3s ease-in-out;
+    }
+    .container>a.btn:hover{
+        transform: scale(1.1);
+        background-color: #579b8a;
+    }
+    .container table{
+        width: 800px;
+        margin: 30px auto;
+        
+    }
+    .container table tr{
+        text-align: center;
+    }
+    .container table tr td:last-of-type a{
+        padding: 20px;
+    }
+    .container table tr td a.delete{
+        color: #e55947;
+    }
+    .clearboth{
+        clear: both;
+    }
+</style>
+<div class="container">
+    <a class="btn" href="/admin/addProduct"><i class="fas fa-plus-square"></i> Product</a>
+
+<table class="table table-hover">
+    <thead class="thead-light">
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>image</th>
+            <th></th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        <%if(products){%>
+            <%products.forEach(function(product){%>
+        <tr>
+            <td><%=product.name%></td>
+            <td><%=product.price%></td>
+            <td><%=product.type%></td>
+            <td><img src="/productImages/<%=product._id%>/<%=product.picture%>" alt=""></td>
+            <td>
+                <a class="small" href="/admin/editProduct/<%=product._id%>"><i class="fas fa-pencil-alt"></i></a>
+                <a class="small delete" href="/admin/deleteProduct/<%=product._id%>"><i class="fas fa-trash"></i></a>
+            </td>
+            
+        </tr>
+        <%})%>
+        <%}else{%>
+            <h1>There is no products wright now</h1>
+        <%}%>
+    </tbody>
+
+</table>
+<div class="clearboth"></div>
+</div>
+
+
+<%-include('../layouts/footer.ejs')%>
+<script src="/js/sweetAlert.js"
+<script>
+    $(document).ready(function(){
+        $('tbody>tr>td:last>a.small').on('click',function(e){
+            e.preventDefault()
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this lorem ipsum!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+            }).then(result => {
+                swal("Deleted!", "Your file has been deleted.", "success");
+                if (!result.value) {
+                    e.preventDefault()
+                } else if (
+                // Read more about handling dismissals
+                result.dismiss === swal.DismissReason.cancel
+                ) {
+                swal("Cancelled", "Your imaginary file is safe :", "error");
+                }
+                swall.closeModal();
+            });
+            
+            // if(window.confirm('are you sure for delete this product ?')== false){
+            //     e.preventDefault()
+            // }
+        })
+    })
+</script>
+

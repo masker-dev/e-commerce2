@@ -1,0 +1,134 @@
+<%-include('./layouts/header.ejs')%>
+  <style>
+    td img {
+      width: 100px;
+      height: 100px;
+    }
+    .container-fluid{
+      min-height: 490px;
+    }
+  </style>
+
+  <div class="container-fluid">
+    <table class="table table-hover ">
+      <thead class="thead-light">
+        <tr>
+          <th>Order Date</th>
+          <th>applicant</th>
+          <th>products</th>
+          <th>cost</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%if(orders){%>
+          <%orders.forEach(function(order){%>
+            <tr>
+
+              <td>
+                <%=order.newDate%>
+              </td>
+              <td>
+                <%=order.name%>
+              </td>
+              <td>
+                <%=order.products.length%>
+              </td>
+
+              <td>
+                <%=order.superTotal%>$
+              </td>
+              <td>
+                <%=order.status%>
+              </td>
+              <td><a href="/orders/details/<%=order._id%>"><i class="fas fa-info-circle"></i></a></td>
+              <div class="d-none products">
+                <%order.products.forEach((p)=>{%>
+                  <div class="product" data-product="product._id">
+                    <span class="prodName">
+                      <%=p.productId.name%>
+                    </span>
+                    <span class="prodType">
+                      <%=p.productId.type%>
+                    </span>
+                    <span class="prodPrice">
+                      <%=p.price%>
+                    </span>
+                    <span class="prodQuantity">
+                      <%=p.quantity%>
+                    </span>
+                    <span class="prodTotal">
+                      <%=p.quantity * p.price%>
+                    </span>
+                  </div>
+                  <%})%>
+              </div>
+
+            </tr>
+            <%})%>
+              <%}else{%>
+                <h1>There is no products wright now</h1>
+                <%}%>
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+
+  <!-- Modal -->
+  <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="prdoct">
+            <p><span class="prodName"></span></p>
+            <p><span class="prodType"></span></p>
+            <p><span class="prodPrice"></span></p>
+            <p><span class="prodQuantity"></span></p>
+            <p><span class="prodTotal"></span></p>
+          </div>
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+   -->
+
+
+
+  <%-include('./layouts/footer.ejs')%>
+    <script>
+      /* $(document).ready(function(){
+        let modal = $('#exampleModal'),
+            modalBody = modal.find('.modal-body');
+        function createProduct(length){
+          for(let i in length){
+            modalBody.append('<div class= "product">')
+          }
+        }
+  
+          $('td').on('click',function(){
+            modalBody.find('.prodName').text()
+            let products = $(this).siblings('.products');
+            products.first().each(function(index, ele){
+              modalBody.find('prodName').te
+            })
+            modal.modal('show')
+          })
+      }) */
+
+    </script>

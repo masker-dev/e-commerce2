@@ -1,0 +1,201 @@
+<%-include('./layouts/header.ejs')%>
+
+<style>
+    /* .container-fluid{
+        margin: 50px 0 !important;
+    } */
+    .container-fluid .row{
+        padding: 50px;
+    }
+    .prod-image{
+        min-width: 400px;
+        height: 500px;
+        background-size: cover !important;
+        background: center no-repeat;
+        display: inline-block;
+    }
+    .details{
+        padding-left: 30px;
+    }
+    .details h2{
+        font-weight: 200 ;
+        color: #f28482;
+    }
+    .details p.text-muted{
+        font-size: 80%;
+        font-weight: 400;
+        margin-bottom: 20px !important;
+    }
+    .details form{
+        max-width: 60%;
+        margin-top: 20px;
+    }
+    .details form i.fas{
+        padding: 4px;
+        border-radius: 5px;
+        color: white;
+        background-color: #ef476f;
+    }
+    .details form .fas:hover{
+        cursor: pointer;
+    }
+
+    .details form input[type="text"] {
+        width: 40px !important;
+        border: none;
+        text-align: center;
+        background: inherit;
+        color: rgb(75, 75, 75);
+    }
+
+    .details form .btn-card{
+    /* margin: 0 auto; */
+    border: none;
+    /* background: inherit; */
+    /* display: block; */
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 25px;
+    border-radius: 10px;
+    /* background-color: #f28482; */
+    background-color: #a2a8a8;
+    transition: all 0.2s linear;
+    }
+    .details form .btn-card:hover{
+    background-color: #00e8e8;
+}
+</style>
+    <div class="container-fluid">
+        <%if(product){%>
+        
+            <!-- <img src="/<%=product.picture%>" class="" alt="<%=product.name%>"> -->
+            <div class="row">
+                <div class="prod-image col-md-6" style="background-image:url(/productImages/<%=product._id%>/<%=product.picture%>)"></div>
+        
+                <div class="details col-md-6">
+        
+                    <h2>
+                        <%=product.name%>
+                    </h2>
+                    <p class="text-muted">
+                        <%=product.type%>
+                    </p>
+                    <p>
+                        <%=product.description%>
+                    </p>
+        
+                    <form class="formPostCard" action="/card" method="POST">
+                        <h5 style="float: left;">price: <%=product.price%>$ </h5>
+                        <div style="float: right;">
+                        <i class="fas fa-plus mr-3" id="<%=product._id%>"></i>
+                        <input readonly type="text" name="quantity" value="1">
+                        <i class="fas fa-minus ml-3"></i>
+                        </div>
+                        <div style="clear: both;"></div>
+                        <input type="hidden" name="productId" value="<%=product._id%>">
+                        <input type="hidden" name="isUser" value="<%=isUser%>">
+                        
+                        <button class="btn-card"><span class="fas fa-cart-plus"></span></button>
+                    </form>
+                    
+                </div>
+            </div>
+        
+            <%}else{%>
+                <div class="alert alert-danger">there is no products matched this id</div>
+        
+                <%}%>
+    </div>
+    
+    
+
+
+<%-include('./layouts/footer.ejs')%>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(() => {
+
+        function postToCard(url = "", data = {}){
+            return new Promise((resolve, reject)=>{
+                $.post({
+                url: url,
+                data: JSON.stringify(data),
+                headers: {
+                    "content-Type": "application/json"
+                },
+                success: function(res, textStatus){
+                    if(textStatus = "success"){
+                        if(res.err){
+                            // console.log(res.err)
+                            reject(res.err)
+                        }else{
+                        console.log(res)
+                        resolve(res)
+                        }
+                        
+                    }
+                }
+            })
+            }) 
+        }
+
+
+        $(".formPostCard").on("submit",function(e){
+            e.preventDefault()
+            let isUser = $(this).find('input[name="isUser"]').val();
+            if(!isUser){
+                return window.location.href = '/login';
+                
+            }
+            let data = {
+                quantity: $(this).find("input[name='quantity']").val(),
+                productId: $(this).find("input[name='productId']").val()
+            }
+            postToCard('/card', data)
+            .then((msg)=>{
+                $('.navbar .nav-item .nav-link .badge').text(msg.count)
+                swal.fire({
+                    title: "Good job!",
+                    text: `${msg.message}`,
+                    icon: "success",
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            })
+            .catch((err)=>{
+                console.log(err);
+                swal.fire({
+                    title: 'ERROR',
+                    text: `${err} !!`,
+                    icon: 'error'
+                });  
+            })
+        })
+
+
+        $(".details  form .fa-plus").on('click', function () {
+            var num = $(this).next().val()
+            num++
+            $(this).next().val(num)
+            let price = parseInt($(this).siblings().children('.price').text());
+            $(this).siblings().children('.total').text(num * price)
+            // console.log($(this).siblings())
+        })
+
+        $(".details  form .fa-minus").on('click', function () {
+            var num = $(this).prev().val();
+            if (num != 1)
+                num--
+            $(this).prev().val(num)
+            let price = parseInt($(this).siblings().children('.price').text());
+            $(this).siblings().children('.total').text(num * price)
+        });
+        $(window).on('load', function () {
+            // let quantity = parseInt($(".items  form .fa-plus").next().val());
+            // let price = parseInt($('#price').text());
+            // $('#total').text(quantity* price);
+        })
+    })
+</script>

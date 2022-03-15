@@ -1,0 +1,220 @@
+<%-include('./layouts/header.ejs')%>
+<style>
+    .title{
+        position: relative;
+    }
+    .title::before{
+        content: "";
+        width: 60px;
+        height: 3px;
+        position: absolute;
+        bottom: 0;
+        left: 17px;
+        background-color: #00e8e8;
+    }
+    .aboutTitle{
+        position: relative;
+    }
+    .aboutTitle::before{
+        content: "";
+        width: 60px;
+        height: 3px;
+        position: absolute;
+        bottom: 0;
+        
+        background-color: #00e8e8;
+    }
+    .card-body >.prodName{
+        color: #575555;
+        font-weight: 200;
+        font-size: 30px;
+        display: block;
+    }
+</style>
+<body>
+    <!-- <div class="test">
+        <span>+ click me</span>
+        <input class="digit" value="1" type="text">
+        <span>dfkj</span>
+    </div> -->
+<!-- header -->
+    <div class="background">
+        <div>
+            <h1 class="display-3 align-content-center">The Best For you <br>Lets <span
+                    class="super strong">Shopping</span>
+            </h1>
+        </div>
+    </div>
+<!-- /header -->
+
+    <!-- products -->
+    <div class="products mt-5">
+        <div class="container">
+            <div class="row">
+                <h2 class="col-sm-6 title">Products</h2>
+                <%if(products.length> 4){%>
+                    <a href="/products" class="small super col-sm-6 text-sm-right pt-sm-3">VIEW MORE ></a>
+                    <%}%>
+            </div>
+            <hr>
+            <div class="row">
+                <%if(products.length == 0){%>
+                    <div class="alert alert-danger w-100" role="alert">
+                        <h5><strong>Sorry!  </strong> There Are No Products Now</h5>
+                        
+                    </div>
+                <%}else{%>
+                <%for(let i=0; i< products.length; i++){%>
+                    <div class="col-sm-6 col-md-4 col-lg-3 pr-1 mb-3">
+                        <div class="card">
+                            <div class="image card-image-top " style="background-image:url(/productImages/<%=products[i]._id%>/<%=products[i].picture%>)">
+                            </div>
+                            <div class="card-body">
+                                <!-- <h4 class="card-title"><a style="color: #118ab2; font-weight: 200px !important;" href="/product/<%=products[i]._id%>">
+                                        <%=products[i].name%>
+                                    </a> </h4> -->
+                                    <a class="prodName" href="/product/<%=products[i]._id%>">
+                                        <%=products[i].name%>
+                                    </a>
+                                    <small class="text-muted">
+                                        <%=products[i].type%>
+                                    </small>
+    
+                                    <!-- <div class="price d-flex justify-content-between">
+                                        
+                                        
+                                    </div> -->
+                                    
+                                    <form class="formPostCard" action="/card" method="POST">
+                                        <p class=" float-right text-muted">$<%=products[i].price%>
+                                        </p>
+                                        <div class="">
+                                            <i class="bgRed fas fa-plus"></i>
+                                            <input readonly type="text" id="quantity" name="quantity" value="1">
+                                            <i class="bgRed fas fa-minus"></i>
+                                            <input type="hidden" id="productId" name="productId" value="<%=products[i]._id%>">
+                                        </div>
+                                        <input type="hidden" name="isUser" value="<%=isUser%>">
+                                        <button class="btn-card"> <i class="fas fa-cart-plus"></i></button>
+                                    </form>
+    
+                            </div>
+                        </div>
+                    </div>
+                    <%if(i==3){break}%>
+                        <%}%>
+                <%}%>
+            </div>
+            
+        </div>
+    </div>
+    <!-- /products -->
+    
+    
+    <!-- About -->
+    <div class="about">
+        <div class="container">
+            
+            <h2 class="aboutTitle">About</h2>
+            <hr>
+            <div class="row">
+                <div class="col-md d-flex align-items-center">
+                
+               <p class=" ml-2">Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt nam porro animi eligendi doloribus consequatur natus nisi est praesentium dignissimos modi, cupiditate ab, quae possimus minima dicta suscipit. Sapiente, delectus.</p>
+               
+            </div>
+
+            <div class="col-md">
+                <img class="float-md-right" style="height: 500px;" src="/images/about.jpg" alt="">
+                <!-- <div class="imageVertical" style="background-image: url(/irene-kredenets-dwKiHoqqxk8-unsplash.jpg);"></div>-->
+            </div>
+        </div>
+        </div>
+    </div>
+    
+<!-- /About -->
+
+
+
+
+<%-include('./layouts/footer.ejs')%>
+
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <script src="/js/sweetAlert.js"></script> -->
+
+<script>
+    $(document).ready(()=>{
+        
+        function postToCard(url = "", data = {}){
+            return new Promise((resolve, reject)=>{
+                $.post({
+                url: url,
+                data: JSON.stringify(data),
+                headers: {
+                    "content-Type": "application/json"
+                },
+                success: function(res, textStatus){
+                    if(textStatus = "success"){
+                        if(res.err){
+                            // console.log(res.err)
+                            reject(res.err)
+                        }else{
+                        console.log(res)
+                        resolve(res)
+                        }
+                        
+                    }
+                }
+            })
+            }) 
+        }
+
+        $(".formPostCard").on("submit",function(e){
+            e.preventDefault()
+            let isUser = $(this).find('input[name="isUser"]').val();
+            if(!isUser){
+                return window.location.href = '/login';
+                
+            }
+            let data = {
+                quantity: $(this).find("input[name='quantity']").val(),
+                productId: $(this).find("input[name='productId']").val()
+            }
+            postToCard('/card', data)
+            .then((msg)=>{
+                $('.navbar .nav-item .nav-link .badge').text(msg.count)
+                swal.fire({
+                    title: "Good job!",
+                    text: `${msg.message}`,
+                    icon: "success",
+                    position: 'top-end',
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            })
+            .catch((err)=>{
+                console.log(err);
+                swal.fire({
+                    title: 'ERROR',
+                    text: `${err} !!`,
+                    icon: 'error'
+                });  
+            })
+        })
+
+        $(".products .card form .fa-plus").on('click',function(){
+            var num = $(this).next().val()
+            num++
+            $(this).next().val(num)
+            console.log('this')
+        })
+
+        $(".products .card form .fa-minus").on('click',function () {
+            var num = $(this).prev().val();
+            if(num!=1)
+            num--
+            $(this).prev().val(num)
+        })
+    })
+</script>

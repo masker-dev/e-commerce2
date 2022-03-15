@@ -1,0 +1,219 @@
+<%-include('../layouts/header.ejs')%>
+<style>
+    td img{
+            width: 100px;
+            height: 100px;
+        }
+        .container>a.btn{
+            margin: 20px 0 10px 20px;
+            background-color: #84a59d;
+            color: white;
+            transition: all 0.3s ease-in-out;
+        }
+        .container>a.btn:hover{
+            transform: scale(1.1);
+            background-color: #579b8a;
+        }
+        .container .tableContainer{
+            width: 800px;
+            min-height: 370px;
+            max-height: 471px;
+            overflow: auto;
+            margin-bottom: 20px;
+            float: right;
+        }
+        .container .tableContainer table{
+            width: 100%;
+            margin: 30px auto;
+            
+        }
+        .container .tableContainer table tr{
+            text-align: center;
+        }
+        .container .tableContainer table tr td:last-of-type a{
+            padding: 20px;
+        }
+        .container .tableContainer table tr td a.delete{
+            color: #e55947;
+        }
+        .clearboth{
+            clear: both;
+        }
+
+
+    .flex{
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-around;
+    }
+    .panel{
+        background-image: linear-gradient(to right,#fcf6bd, #d0f4de);
+        height: 175px;
+        min-width: 350px;
+        margin: 20px;
+        border-radius: 8px;
+        color: #686565;
+    }
+    .panel h3{
+        padding: 10px 0 10px 30px;
+        
+    }
+    .panel p{
+        text-align: center;
+    }
+</style>
+
+
+<div class="container">
+    <a class="btn" href="/admin/addProduct"><i class="fas fa-plus-square"></i> Product</a>
+    <div class="tableContainer">
+        <table class="table table-hover table-bordered">
+    
+            <thead class="thead-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>image</th>
+                    <th></th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <%if(products){%>
+                    <%products.forEach(function(product){%>
+                <tr>
+                    <td><%=product.name%></td>
+                    <td><%=product.price%></td>
+                    <td><%=product.type%></td>
+                    <td><img src="/productImages/<%=product._id%>/<%=product.picture%>" alt=""></td>
+                    <td>
+                        <a class="small" href="/admin/editProduct/<%=product._id%>"><i class="fas fa-pencil-alt"></i></a>
+                        <a class="small delete" href="/admin/deleteProduct/<%=product._id%>"><i class="fas fa-trash"></i></a>
+                    </td>
+                    
+                </tr>
+                <%})%>
+                <%}else{%>
+                    <h1>There is no products wright now</h1>
+                <%}%>
+            </tbody>
+        
+        </table>
+    </div>
+
+<div class="clearboth"></div>
+</div>
+
+
+
+<div class=" container-fluid">
+
+    <div class="flex">
+        <div class="panel">
+            <h3>users</h3>
+            <hr>
+            <p><%=users?users:0%></p>
+        </div>
+        <div class="panel">
+            <h3>Orders</h3>
+            <hr>
+            <p><%=orders?orders:0%></p>
+        </div>
+        <div class="panel">
+            <h3>products</h3>
+            <hr>
+            <p><%=prodLength?prodLength:0%></p>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<script src="/js/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function(){
+        function deleteProd(url =""){
+            return new Promise((resolve, reject)=>{
+                $.get({
+                    url: url,
+                    
+                    headers:{
+                        "content-Type":"application/json"
+                    },
+                    success: function(res, textStatus){
+                        if(textStatus = "success"){
+                            if(res.err){
+                                console.log(res.err)
+                                reject (res.err)
+                            }
+                            console.log('inside function '+ res.message)
+                            resolve(res.message)
+                        }
+                    }
+                })
+            })
+        }
+        $(' a.delete').on('click',function(e){
+            e.preventDefault()
+            
+            let btn = $(this),
+                path = btn.attr('href');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let id = btn.attr("href")
+                    deleteProd(path)
+                    .then((msg)=>{
+                        
+                        Swal.fire(
+                        'Deleted!',
+                        msg,
+                        'success'
+                    ).then(()=>{
+                        window.location.reload()
+                    })
+                    })
+                    .catch((err)=>{
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: err,
+                            
+                        })
+                    })
+                }
+            })
+            
+            // if(window.confirm('are you sure for delete this product ?')== false){
+            //     e.preventDefault()
+            // }
+        })
+    })
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<%-include('./layouts/header.ejs')%>
+    <style>
+        .card-body h4 a {
+            color: #f28482;
+            font-weight: 200;
+            font-size: 30px;
+            display: block;
+        }
+        .default{
+            min-height: 450px;
+        }
+    </style>
+
+    <!-- products -->
+    <div class="products mt-5">
+        <div class="default container">
+            <div class="row">
+                <h2 class="col-sm-6">Products</h2>
+                <!-- <%if(products.length> 4){%>
+                    <a href="/products" class="small super col-sm-6 text-sm-right pt-sm-3">VIEW MORE ></a>
+                    <%}%> -->
+            </div>
+            <hr>
+            <div class="row">
+                <%if(products.length==0){%>
+                    <div class="alert alert-danger w-100" role="alert">
+                        <h5><strong>Sorry! </strong> There Are No Products Now</h5>
+
+                    </div>
+                    <%}else{%>
+                        <%for(let i=0; i< products.length; i++){%>
+                            <div class="col-sm-6 col-md-4 col-lg-3 pr-1 mb-3">
+                                <div class="card">
+                                    <div class="image card-image-top "
+                                        style="background-image:url(/productImages/<%=products[i]._id%>/<%=products[i].picture%>)">
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title"><a href="/product/<%=products[i]._id%>">
+                                                <%=products[i].name%>
+                                            </a> </h4>
+                                        <small class="text-muted">
+                                            <%=products[i].type%>
+                                        </small>
+
+                                        <!-- <div class="price d-flex justify-content-between">
+                                            
+                                            
+                                        </div> -->
+                                        <form class="formPostCard" action="/card" method="POST">
+                                            <p class=" float-left text-muted">$<%=products[i].price%>
+                                            </p>
+                                            <div class="float-right">
+                                                <i class="bgRed fas fa-plus"></i>
+                                                <input readonly type="text" name="quantity" value="1">
+                                                <i class="bgRed fas fa-minus"></i>
+                                                <input type="hidden" name="productId" value="<%=products[i]._id%>">
+                                                <input type="hidden" name="isUser" value="<%=isUser%>">
+                                            </div>
+
+
+                                            <button class="btn-card"> <i class="fas fa-cart-plus"></i></button>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <%}%>
+                                <%}%>
+            </div>
+        </div>
+    </div>
+    <!-- /products -->
+
+    <%-include('./layouts/footer.ejs')%>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(() => {
+            function postToCard(url = "", data = {}){
+                return new Promise((resolve, reject)=>{
+                    $.post({
+                    url: url,
+                    data: JSON.stringify(data),
+                    headers: {
+                        "content-Type": "application/json"
+                    },
+                    success: function(res, textStatus){
+                        if(textStatus = "success"){
+                            if(res.err){
+                                // console.log(res.err)
+                                reject(res.err)
+                            }else{
+                            console.log(res)
+                            resolve(res)
+                            }
+                            
+                        }
+                    }
+                    })
+                }) 
+            }
+
+
+    $(".formPostCard").on("submit",function(e){
+        e.preventDefault();
+        let isUser = $(this).find('input[name="isUser"]').val();
+            if(!isUser){
+                return window.location.href = '/login';
+                
+            } 
+        let data = {
+            quantity: $(this).find("input[name='quantity']").val(),
+            productId: $(this).find("input[name='productId']").val()
+        }
+        postToCard('/card', data)
+        .then((msg)=>{
+            console.log(msg)
+            $('.navbar .nav-item .nav-link .badge').text(msg.count)
+            swal.fire({
+                title: "Good job!",
+                text: `${msg}`,
+                icon: "success",
+                position: 'top-end',
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        })
+        .catch((err)=>{
+            
+            swal.fire({
+                title: 'ERROR',
+                text: `${err} !!`,
+                icon: 'error'
+            });  
+        })
+    })
+
+
+
+            $("form .fa-plus").on('click', function () {
+                var num = $(this).next().val()
+                num++
+                $(this).next().val(num)
+                let price = parseInt($(this).siblings().children('.price').text());
+                $(this).siblings().children('.total').text(num * price)
+                // console.log($(this).siblings())
+            })
+
+            $("form .fa-minus").on('click', function () {
+                var num = $(this).prev().val();
+                if (num != 1)
+                    num--
+                $(this).prev().val(num)
+                let price = parseInt($(this).siblings().children('.price').text());
+                $(this).siblings().children('.total').text(num * price)
+                // console.log(`price is `)
+            });
+        })
+    </script>
